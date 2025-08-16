@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AI Meeting Summarizer (Groq + Flask)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --bg-light: #f9fafb;
+      --border: #e5e7eb;
+      --text-muted: #6b7280;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg-light);
+      color: #111827;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 40px auto;
+      padding: 24px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    form {
+      display: grid;
+      gap: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="file"]:focus,
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.2);
+    }
+
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+    }
+
+    .note {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 6px;
+    }
+
+    button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.15s;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 32px 0;
+    }
+
+    ul {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      padding: 12px 16px;
+      border-radius: 10px;
+      list-style: disc inside;
+    }
+
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✨ AI Meeting Summarizer</h1>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul>
+        {% for msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('generate') }}" method="post" enctype="multipart/form-data">
+      <div class="row">
+  <label><strong>Upload Transcript (.txt, .pdf, .docx)</strong></label>
+  <input type="file" name="transcript_file" accept=".txt,.pdf,.docx" />
+  <div class="note">Or paste transcript below if you don’t want to upload a file.</div>
+</div>
+
+      <div class="row">
+        <label><strong>Paste Transcript</strong></label>
+        <textarea name="transcript_text" placeholder="Paste meeting / call transcript here..."></textarea>
+      </div>
+
+      <div class="row">
+        <label><strong>Custom Instruction / Prompt</strong></label>
+        <input type="text" name="prompt" placeholder="E.g., Summarize in bullet points for executives. Highlight only action items." />
+      </div>
+
+      <div class="row" style="text-align: center;">
+        <button type="submit">🚀 Generate Summary</button>
+      </div>
+    </form>
+
+    <hr />
+    <p class="note" style="text-align:center;">
+      This minimal demo uses the <strong>Groq Python client</strong>.
+      Ensure your environment variable <code>GROQ_API_KEY</code> is set.
+      See README for setup instructions.
+    </p>
+  </div>
+</body>
+</html>

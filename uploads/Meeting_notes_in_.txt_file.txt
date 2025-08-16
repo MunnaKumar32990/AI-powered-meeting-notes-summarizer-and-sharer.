@@ -1,0 +1,73 @@
+﻿Meeting notes can be effectively captured and stored in a plain text (.txt) file. This format offers simplicity, broad compatibility, and ease of access and editing.
+
+
+Content to include in .txt meeting notes:
+* Meeting Header:
+   * Date and Time of Meeting
+   * Meeting Title/Purpose
+   * Attendees (and Absentees, if relevant)
+   * Location (if applicable)
+
+
+
+* Agenda Items and Discussions:
+   * Clearly list each agenda item.
+   * Summarize key points discussed under each item.
+   * Record any decisions made.
+
+
+
+* Action Items:
+   * List specific tasks or actions identified.
+   * Assign each action item to a responsible individual or team.
+   * Include deadlines for completion.
+
+
+
+* Key Decisions and Outcomes:
+   * Summarize the main conclusions reached during the meeting.
+
+
+
+* Next Steps/Future Meetings:
+   * Note any topics to be carried over to future discussions.
+   * Record details for the next scheduled meeting, if determined.
+
+
+Example Structure for a .txt file:
+
+
+MEETING NOTES
+
+
+Date: August 16, 2025
+Time: 10:00 AM - 11:30 AM
+Meeting Title: Project Alpha Kick-off
+Attendees: John Doe, Jane Smith, Bob Johnson
+Location: Conference Room A
+
+
+1.  Agenda Item: Project Overview
+    *   Discussion: Presented project scope, goals, and key deliverables.
+    *   Decision: Approved project timeline and resource allocation.
+
+
+2.  Agenda Item: Team Roles & Responsibilities
+    *   Discussion: Defined roles for each team member.
+    *   Action Item: Jane Smith to create detailed task breakdown by EOD 8/18/2025.
+
+
+3.  Agenda Item: Risk Assessment
+    *   Discussion: Identified potential risks and mitigation strategies.
+    *   Action Item: Bob Johnson to research alternative vendor options by 8/20/2025.
+
+
+Key Outcomes: Project officially launched, team roles assigned, initial risk assessment completed.
+
+
+Next Meeting: Project Alpha Weekly Sync - August 23, 2025, 10:00 AM.
+	
+
+
+
+AI responses may include mistakes.

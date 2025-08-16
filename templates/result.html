@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Summary — Editable & Share</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --bg-light: #f9fafb;
+      --border: #e5e7eb;
+      --text-muted: #6b7280;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg-light);
+      color: #111827;
+      margin: 0;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 880px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    .topbar {
+      margin-bottom: 20px;
+    }
+
+    .topbar a {
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .topbar a:hover {
+      color: var(--primary-dark);
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 16px;
+      color: var(--primary-dark);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 360px;
+      padding: 14px;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      resize: vertical;
+      transition: border 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.2);
+    }
+
+    .row { margin-top: 12px; }
+
+    .actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+    }
+
+    button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.15s;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    button.secondary:hover {
+      background: #d1d5db;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <a href="{{ url_for('index') }}">← New summary</a>
+    </div>
+
+    <h2>📝 Generated Summary (Editable)</h2>
+
+    <p><strong>Prompt:</strong> {{ prompt or "(none)" }}</p>
+
+    <form id="downloadForm" action="{{ url_for('download') }}" method="post">
+      <textarea name="edited_summary" id="edited_summary">{{ summary }}</textarea>
+
+      <div class="row" style="display:flex; gap:12px; margin-top:12px;">
+        <input type="text" id="recipients" placeholder="Recipients — e.g. alice@example.com, bob@example.com" style="flex:2; padding:12px; border-radius:10px; border:1px solid #e5e7eb;" />
+        <input type="text" id="emailSubject" placeholder="Email subject (optional)" value="Meeting Summary" style="flex:1; padding:12px; border-radius:10px; border:1px solid #e5e7eb;" />
+      </div>
+
+      <div class="actions">
+        <button type="submit">💾 Download as .txt</button>
+        <button type="button" class="secondary" onclick="copyToClipboard()">📋 Copy</button>
+        <button type="button" id="sendEmailBtn">✉️ Send Email</button>
+      </div>
+    </form>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <!-- hidden metadata so JS can include prompt + transcript in email -->
+  <input type="hidden" id="prompt_hidden" value="{{ prompt|e }}" />
+  <input type="hidden" id="transcript_hidden" value="{{ transcript|e }}" />
+
+  <script>
+    function copyToClipboard() {
+      const t = document.getElementById('edited_summary');
+      t.select();
+      document.execCommand('copy');
+      alert('Copied to clipboard!');
+    }
+
+    document.getElementById('sendEmailBtn').addEventListener('click', async () => {
+      const recipients = document.getElementById('recipients').value.trim();
+      const subject = document.getElementById('emailSubject').value.trim() || 'Meeting Summary';
+      const edited_summary = document.getElementById('edited_summary').value;
+      const prompt = document.getElementById('prompt_hidden').value || '';
+      const transcript = document.getElementById('transcript_hidden').value || '';
+
+      const statusDiv = document.getElementById('status');
+
+      if (!recipients) {
+        statusDiv.style.color = 'red';
+        statusDiv.textContent = 'Please enter at least one recipient email address.';
+        return;
+      }
+
+      // Basic UX
+      statusDiv.style.color = 'black';
+      statusDiv.textContent = 'Sending...';
+      const btn = document.getElementById('sendEmailBtn');
+      btn.disabled = true;
+
+      try {
+        const resp = await fetch("{{ url_for('send_email') }}", {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            recipients: recipients,
+            subject: subject,
+            edited_summary: edited_summary,
+            prompt: prompt,
+            transcript: transcript
+          })
+        });
+
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          const err = data.error || `HTTP ${resp.status}`;
+          statusDiv.style.color = 'red';
+          statusDiv.textContent = 'Error sending: ' + err;
+        } else {
+          statusDiv.style.color = 'green';
+          statusDiv.textContent = data.message || 'Sent successfully!';
+        }
+      } catch (err) {
+        statusDiv.style.color = 'red';
+        statusDiv.textContent = 'Network error: ' + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
